@@ -181,6 +181,8 @@ svg text{font-family:var(--mono)}
         <button data-v="esc">Rettungswege OG</button>
         <button data-v="stairs">Treppenhaus</button>
         <button data-v="vipin">VIP-Zugang</button>
+        <button data-v="screen">Sichtschutz Deck</button>
+        <button data-v="viplift">VIP-Aufzug</button>
         <button data-v="vipcat">VIP-Catering</button>
         <button data-v="lounge">Players Lounge</button>
         <button data-v="garde">Garderobe</button>
@@ -295,13 +297,14 @@ svg text{font-family:var(--mono)}
       <h2>VIP (Vorschlag)</h2>
       <dl>
         <dt>VIP-Tribüne (Deck, Eingangsseite OG)</dt><dd><span id="vipS"></span> Plätze, 3 Reihen</dd>
-        <dt>Esstische (Deck hinter OPCT-Wand)</dt><dd><span id="vipT"></span> × 4 Plätze</dd>
+        <dt>Esstische à 4</dt><dd><span id="vipT"></span> innen hinter der OPCT-Wand + 2 außen am Buffet</dd>
+        <dt>Sichtschutz / Fotowand</dt><dd>2 × ca. 8 m, 2,4 m hoch, je 1 Kontrollöffnung mit 2 Security</dd>
         <dt>Fingerfood-Buffet</dt><dd>6 m, außen auf der Motorworld-Galerie</dd>
         <dt>VIP-Bar</dt><dd>3 m Theke, außen</dd>
         <dt>Stehtische außen</dt><dd>4</dd>
         <dt>OPCT-Wand</dt><dd>9 × 2,6 m hinter der VIP-Tribüne</dd>
       </dl>
-      <p class="note">Die VIPs sitzen auf einer Tribüne mit 3 Reihen vorne auf dem Deck an der Eingangsseite (OG), Blick längs über den Court Richtung LED-Gate; Mittelgang 1,20 m, Seitengänge ca. 1,8 m. Das Catering liegt auf dem Deck hinter der OPCT-Wand und draußen auf der Motorworld-Galerie: VIPs kommen per Aufzug hoch, Check-in bei der Security, Buffet und Bar außen, Esstische auf dem Deck, dann um die OPCT-Wand herum zur Tribüne. Je eine Security trennt das Deck von den beiden normalen Galerien. Beide Seitengalerien sind normale Stehfläche mit je 60 Personen in 2 versetzten Reihen (ca. 11–12 pro Glasfeld, am Platz von Cam 2 ausgespart). Der Streifen direkt vor den Türen bleibt frei (brandlastfrei, Fluchtweg). VIP-Plätze zählen nur einmal (Tribüne), die Esstische sind dieselben Gäste.</p>
+      <p class="note">Die VIPs sitzen auf einer Tribüne mit 3 Reihen vorne auf dem Deck an der Eingangsseite (OG), Blick längs über den Court Richtung LED-Gate; Mittelgang 1,20 m, Seitengänge ca. 1,8 m. Das Catering liegt auf dem Deck hinter der OPCT-Wand und draußen auf der Motorworld-Galerie: VIPs werden unten in der Rotunde am Aufzug von der Security kontrolliert (nur VIPs fahren hoch), oben Buffet, Bar und 2 Esstische außen, weitere Esstische auf dem Deck, dann um die OPCT-Wand herum zur Tribüne. Normale Besucher:innen kommen über die Treppenhäuser an der Eingangsseite aufs Deck und gehen außen an Sichtschutz-/Fotowänden (2,4 m) vorbei zu den Galerien (Weg ca. 1,70 m), so sieht niemand auf die Tische. In jeder Wand ist eine 1,20-m-Öffnung mit 2 VIP-Security. Beide Seitengalerien sind normale Stehfläche mit je 60 Personen in 2 versetzten Reihen (ca. 11–12 pro Glasfeld, am Platz von Cam 2 ausgespart). Der Streifen direkt vor den Türen bleibt frei (brandlastfrei, Fluchtweg). VIP-Plätze zählen nur einmal (Tribüne), die Esstische sind dieselben Gäste.</p>
     </section>
 
     <section>
@@ -1807,6 +1810,9 @@ const vipG=new THREE.Group();scene.add(vipG);
 const vipOn=()=>L("L_vip").checked;
 const VIP_TABLES=[];
 [[48.4,-2.8],[50.8,-2.8],[48.4,0],[50.8,0],[48.4,2.8],[50.8,2.8]].forEach(t=>VIP_TABLES.push(t)); // Deck hinter der OPCT-Wand
+const VIP_TABLES_OUT=[[58.6,3.6],[58.2,-9.6]]; // zusätzlich außen am Buffet (Motorworld-Galerie)
+// Sichtschutz-/Fotowände zwischen VIP-Bereich und öffentlichem Weg Treppe ↔ Galerie, je Seite mit Kontrollöffnung (2 Security)
+const SCR={z:5.75,x0:43.95,x1:53.4,gate:[46.6,47.8],h:2.4};
 const OUT={x0:H.endX,x1:H.endX+6.9,z0:-10.4,z1:10.6,y:4.8}; // Motorworld-Galerie (außen, über dem Dampfdom-Eingang)
 // VIP-Tribüne vorne auf dem Deck (Eingangsseite, OG), 3 Reihen, Blick Richtung Court; Mittelgang 1,20 m
 const VIPT={front:41.4,rows:3,h0:.15,segs:[[-5.6,-.6],[.6,5.6]]};
@@ -1824,9 +1830,9 @@ const vipWallMat=new THREE.MeshBasicMaterial({map:opctWallTex()});
 const vipWallMatBack=new THREE.MeshBasicMaterial({map:opctWallTex()});
 (function(){const y=H.galT;
   // VIP-Esstische auf dem Deck hinter der OPCT-Wand (4 Plätze)
-  VIP_TABLES.forEach(([x,z],i)=>{box(vipG,.8,.05,1.2,clothMat,x,y+.75,z);box(vipG,.06,.72,.06,M.steel,x,y+.37,z,false);
-    [[-.55,-.3,Math.PI/2],[-.55,.3,Math.PI/2],[.55,-.3,-Math.PI/2],[.55,.3,-Math.PI/2]].forEach(([dx,dz,r],k)=>{chair(vipG,x+dx,z+dz,r,y);if((i+k)%3)seated(vipG,x+dx*1.05,z+dz,peopleMat[(i+k)%4],y);});
-    const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,.18,10),vipMat);lamp.position.set(x,y+.86,z);vipG.add(lamp);});
+  [[VIP_TABLES,y],[VIP_TABLES_OUT,OUT.y]].forEach(([T,yy])=>T.forEach(([x,z],i)=>{box(vipG,.8,.05,1.2,clothMat,x,yy+.75,z);box(vipG,.06,.72,.06,M.steel,x,yy+.37,z,false);
+    [[-.55,-.3,Math.PI/2],[-.55,.3,Math.PI/2],[.55,-.3,-Math.PI/2],[.55,.3,-Math.PI/2]].forEach(([dx,dz,r],k)=>{chair(vipG,x+dx,z+dz,r,yy);if((i+k)%3)seated(vipG,x+dx*1.05,z+dz,peopleMat[(i+k)%4],yy);});
+    const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.05,.07,.18,10),vipMat);lamp.position.set(x,yy+.86,z);vipG.add(lamp);}));
   // VIP-Tribüne: Podeste, Stühle, Mittelgang mit Stufen, Rückengeländer
   VIPT.segs.forEach(([z0,z1])=>{const w=z1-z0,zm=(z0+z1)/2;
     for(let r=0;r<VIPT.rows;r++){const h=VIPT.h0+ROW_H*r,xm=VIPT.front+r*ROW_D+ROW_D/2;
@@ -1847,13 +1853,18 @@ const vipWallMatBack=new THREE.MeshBasicMaterial({map:opctWallTex()});
   [-2.9,0,2.9].forEach(z=>{const d=plane(2.4,2.3,basic("#ffe7b8"));d.rotation.y=-Math.PI/2;d.position.set(H.endX-.03,y+1.15,z);vipG.add(d);});
   // Security 1: VIP-Check-in an der Aufzug-/Treppenankunft auf der Motorworld-Galerie
   const vest=()=>{const v=new THREE.Mesh(new THREE.BoxGeometry(.42,.25,.32),mat("#c9a35a"));v.position.y=1.05;return v;};
-  person(vipG,57.4,5.6,secMat,OUT.y).add(vest());
-  [[56.7,5.0],[58.2,5.0],[59.6,5.0]].forEach(([x,z],i,a)=>{const st=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,1,8),vipMat);st.position.set(x,OUT.y+.5,z);vipG.add(st);if(i)segBox(vipG,a[i-1],[x,z],OUT.y+.9,.03,.03,mat("#7a1f2b"));});
+  // Security unten am Aufzug (Rotunde, neben dem Dampfdom-Einlass): nur VIPs fahren hoch
   const vipSign=()=>plane(.8,.5,new THREE.MeshBasicMaterial({map:canvasTex(160,100,(g,w,h)=>{g.fillStyle="#c9a35a";g.fillRect(0,0,w,h);g.fillStyle="#1a0b14";g.font="800 54px Archivo, Arial";g.textAlign="center";g.fillText("VIP",w/2,70);})}));
-  const vs=vipSign();vs.position.set(56.7,OUT.y+1.35,5.0);vs.rotation.y=Math.PI;vipG.add(vs);
-  // Security 2 + 3: trennen das VIP-Deck von beiden normalen Galerien
-  // keine feste Absperrung: Übergang Deck ↔ Seitengalerie ist Rettungsweg der Galerien zu den Deck-Ausgängen
-  [-1,1].forEach(k=>{person(vipG,41.3,k*6.9,secMat,y).add(vest());const sg2=vipSign();sg2.position.set(41.3,y+1.9,k*7.38);sg2.rotation.y=k>0?Math.PI:0;vipG.add(sg2);});
+  person(vipG,56.6,5.35,secMat,0).add(vest());
+  {const st=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,1.6,8),vipMat);st.position.set(56.6,.8,4.75);vipG.add(st);const vs=vipSign();vs.position.set(56.6,1.75,4.75);vs.rotation.y=Math.PI;vipG.add(vs);}
+  // Sichtschutz-/Fotowände (B1) links und rechts: öffentlicher Weg Treppe ↔ Galerie bleibt außen (ca. 1,70 m), VIP-Bereich innen nicht einsehbar
+  const photoTex=(len)=>canvasTex(512,256,(g,w,h)=>{g.fillStyle="#EAEAEA";g.fillRect(0,0,w,h);g.font="800 30px Archivo, Arial, sans-serif";for(let r=0;r<8;r++)for(let c=0;c<3;c++){g.fillStyle=(r+c)%2?"#3D0A4A":"#FF6352";g.fillText((r+c)%2?"OPCT":"WORLD FINALS",14+c*175+(r%2)*60,32+r*31);}},Math.max(1,len/2.4),1);
+  [-1,1].forEach(k=>{[[SCR.x0,SCR.gate[0]],[SCR.gate[1],SCR.x1]].forEach(([a,b])=>{const len=b-a,pm=new THREE.MeshBasicMaterial({map:photoTex(len)}),mats=[M.dark,M.dark,M.dark,M.dark,k>0?pm:M.dark,k>0?M.dark:pm];
+      const w_=new THREE.Mesh(new THREE.BoxGeometry(len,SCR.h,.12),mats);w_.position.set((a+b)/2,y+SCR.h/2,k*SCR.z);w_.castShadow=true;vipG.add(w_);});
+    // Kontrolle: 2 VIP-Security je Öffnung
+    [SCR.gate[0]-.25,SCR.gate[1]+.25].forEach(x=>person(vipG,x,k*(SCR.z+.45),secMat,y).add(vest()));
+    const gs=vipSign();gs.position.set((SCR.gate[0]+SCR.gate[1])/2,y+SCR.h-.2,k*(SCR.z+.07));gs.rotation.y=k>0?0:Math.PI;vipG.add(gs);
+    box(vipG,SCR.gate[1]-SCR.gate[0]+.1,.12,.14,M.dark,(SCR.gate[0]+SCR.gate[1])/2,y+SCR.h+.06,k*SCR.z,false);});
   // VIP-Catering auf der Motorworld-Galerie: Fingerfood-Buffet + Getränke-Bar (Rücken zum Geländer), Stehtische
   box(vipG,.8,.9,6,chairMat,59.4,OUT.y+.45,-5.5);box(vipG,.85,.04,6.05,clothMat,59.4,OUT.y+.92,-5.5);
   for(let i=0;i<6;i++){const z=-8+i;box(vipG,.4,.07,.6,vipMat,59.4,OUT.y+.98,z,false);const d=new THREE.Mesh(new THREE.SphereGeometry(.18,10,6,0,Math.PI*2,0,Math.PI/2),M.steel);d.position.set(59.4,OUT.y+1.0,z);vipG.add(d);}
@@ -1861,7 +1872,7 @@ const vipWallMatBack=new THREE.MeshBasicMaterial({map:opctWallTex()});
   box(vipG,.7,1.1,3,M.sug,59.3,OUT.y+.55,1.0);box(vipG,.75,.05,3.05,vipMat,59.3,OUT.y+1.12,1.0,false);box(vipG,.4,2,3,M.dark,60.2,OUT.y+1.0,1.0);
   person(vipG,59.8,.4,secMat,OUT.y);person(vipG,58.5,1.6,peopleMat[0],OUT.y);
   const tp=new THREE.CylinderGeometry(.04,.04,1.1,8),tt=new THREE.CylinderGeometry(.4,.4,.04,24);
-  [[57.6,-7],[57.6,-4],[57.6,-1],[57.6,2.6]].forEach(([x,z],i)=>{const a=new THREE.Mesh(tp,M.steel);a.position.set(x,OUT.y+.55,z);const b=new THREE.Mesh(tt,clothMat);b.position.set(x,OUT.y+1.1,z);vipG.add(a,b);if(i%2)person(vipG,x+.5,z+.2,peopleMat[i%4],OUT.y);});
+  [[57.6,-7],[57.6,-4],[57.6,-1],[56.95,1.8]].forEach(([x,z],i)=>{const a=new THREE.Mesh(tp,M.steel);a.position.set(x,OUT.y+.55,z);const b=new THREE.Mesh(tt,clothMat);b.position.set(x,OUT.y+1.1,z);vipG.add(a,b);if(i%2)person(vipG,x+.5,z+.2,peopleMat[i%4],OUT.y);});
   const vl=new THREE.PointLight(0xffd9a0,.6,22,1.5);vl.position.set(52,y+3.5,0);vipG.add(vl);
 })();
 
@@ -2097,9 +2108,12 @@ label("Galerie · 60 Stehplätze, 2 Reihen",[29,H.galT+2.0,-8.6],audG,"sug");
 label("Galerie · 60 Stehplätze, 2 Reihen",[29,H.galT+2.0,8.6],audG,"sug");
 label("VIP-Tribüne · 3 Reihen",[42.7,H.galT+2.4,-3],vipG,"sug");
 label("OPCT-Wand hinter VIP-Tribüne",[46.4,H.galT+3,0],vipG,"sug");
-label("Security-Kontrolle · Durchgang frei (Rettungsweg)",[41.3,H.galT+2.4,6.9],vipG,"dim");
-label("Security-Kontrolle · Durchgang frei (Rettungsweg)",[41.3,H.galT+2.4,-6.9],vipG,"dim");
-label("Security · VIP-Check-in (Aufzug)",[57.4,4.8+2.2,5.6],vipG,"dim");
+label("VIP-Kontrolle · 2 Security",[47.2,H.galT+3.0,6.2],vipG,"dim");
+label("VIP-Kontrolle · 2 Security",[47.2,H.galT+3.0,-6.2],vipG,"dim");
+label("Sichtschutz / Fotowand 2,4 m",[51,H.galT+2.9,-6.0],vipG,"sug");
+label("Weg Treppe ↔ Galerie ca. 1,70 m",[50,H.galT+.5,-6.6],vipG,"dim");
+label("VIP-Esstische außen am Buffet",[58.4,4.8+1.8,-9.6],vipG,"sug");
+label("Security · VIP-Aufzug (unten, Rotunde)",[56.6,2.5,5.35],vipG,"dim");
 label("Türen Motorworld-Galerie ↔ Dampfdom",[53.4,H.galT+2.7,0],vipG,"sug");
 label("Players Lounge · 2 Reihen",[8.15,2.6,8.4],loungeG,"sug");
 label("Gang 1,20 m",[12.0,.5,8],loungeG,"dim");
@@ -2199,6 +2213,8 @@ const VIEWS={
   stairs:{p:[47.6,15,-15.5],t:[48.2,0,-8.4]},
   vipcat:{p:[63.5,8.6,8.5],t:[55,4.8,-3.5]},
   vipin:{p:[52.5,H.galT+3.2,3.5],t:[42,H.galT,-5.5]},
+  screen:{p:[52.9,H.galT+1.7,-6.9],t:[42,H.galT+1.1,-5.6]},
+  viplift:{p:[61.5,2.2,-.5],t:[55.8,1.2,5.6]},
   lounge:{p:[C.cx+11,2.9,5.9],t:[C.cx-6,1,8.6]},
   garde:{p:[H.endX+18.5,2.6,.2],t:[H.endX+11.5,1.1,8.6]},
 };
@@ -2278,7 +2294,11 @@ function renderPlan(){
     sg+=`<text x="${VIPT.front+VIPT.rows*ROW_D+.55}" y="0" font-size=".5" fill="#e9cf9a" text-anchor="middle" transform="rotate(-90 ${VIPT.front+VIPT.rows*ROW_D+.55} 0)">VIP-Tribüne · ${VIP_SEATS} Pl.</text>`;
     sg+=`<rect x="46.27" y="-4.5" width=".26" height="9" fill="#542272" stroke="#b994e6" stroke-width=".06"/><text x="45.9" y="-4.8" font-size=".5" fill="#d9c5f2" text-anchor="end">OPCT-Wand</text>`;
     sg+=`<polyline points="57.2,7.4 55.6,.6 53.4,0 52.3,-4.4 47.6,-5.4 45.1,-5.4 45.1,0 44.0,0" fill="none" stroke="#c9a35a" stroke-width=".22" stroke-dasharray=".6 .3"/>`;
-    [[57.4,5.6,"VIP-Check-in"],[41.6,8.3,"Security (ohne Absperrung)"],[41.6,-8.7,"Security (ohne Absperrung)"]].forEach(([x,z,t])=>sg+=`<circle cx="${x}" cy="${z}" r=".45" fill="#c9a35a" stroke="#1a0b14" stroke-width=".08"/><text x="${x}" y="${z+.2}" font-size=".45" fill="#1a0b14" text-anchor="middle" font-weight="700">S</text><text x="${x}" y="${z+1.2}" font-size=".5" fill="#e9cf9a" text-anchor="middle">${t}</text>`);
+    VIP_TABLES_OUT.forEach(([x,z])=>sg+=`<rect x="${x-.4}" y="${z-.6}" width=".8" height="1.2" fill="#efeaf4" stroke="#c9a35a" stroke-width=".05"/>`);
+    [-1,1].forEach(k=>{[[SCR.x0,SCR.gate[0]],[SCR.gate[1],SCR.x1]].forEach(([a,b])=>sg+=`<line x1="${a}" y1="${k*SCR.z}" x2="${b}" y2="${k*SCR.z}" stroke="#c9a35a" stroke-width=".18"/>`);});
+    sg+=`<text x="50.6" y="${-SCR.z-.35}" font-size=".42" fill="#e9cf9a" text-anchor="middle">Sichtschutz / Fotowand</text>`;
+    s+=`<circle cx="56.6" cy="5.35" r=".45" fill="#c9a35a" stroke="#1a0b14" stroke-width=".08"/><text x="56.6" y="5.55" font-size=".45" fill="#1a0b14" text-anchor="middle" font-weight="700">S</text><text x="58.9" y="5.55" font-size=".45" fill="#e9cf9a">VIP-Aufzug</text>`;
+    [[47.2,6.75,"VIP-Kontrolle"],[47.2,-6.75,"VIP-Kontrolle"]].forEach(([x,z,t])=>sg+=`<circle cx="${x}" cy="${z}" r=".45" fill="#c9a35a" stroke="#1a0b14" stroke-width=".08"/><text x="${x}" y="${z+.2}" font-size=".45" fill="#1a0b14" text-anchor="middle" font-weight="700">S</text><text x="${x}" y="${z+1.2}" font-size=".5" fill="#e9cf9a" text-anchor="middle">${t}</text>`);
     sg+=`<text x="20" y="-14.3" font-size=".7" fill="#e9cf9a" text-anchor="middle">GALERIE (OG) · Stehplätze je 2 Reihen · ${GAL_M} + ${GAL_P} Pers.</text><text x="50.1" y="4.6" font-size=".5" fill="#e9cf9a" text-anchor="middle">VIP-Catering · ${VIP_TABLES.length} Tische</text>`;}
   if(on("L_lounge")){LOUNGE_SEGS.forEach(([a,b])=>{s+=`<rect x="${a}" y="7.5" width="${b-a}" height=".85" fill="#2c2033" stroke="#b994e6" stroke-width=".05"/><rect x="${a}" y="8.35" width="${b-a}" height=".85" fill="#3d2b48" stroke="#b994e6" stroke-width=".05"/><line x1="${a}" y1="9.55" x2="${b}" y2="9.55" stroke="#000" stroke-width=".2"/>`;});
     s+=`<text x="8.15" y="9.0" font-size=".5" fill="#efeaf4" text-anchor="middle">Players Lounge</text><text x="26.35" y="9.0" font-size=".5" fill="#efeaf4" text-anchor="middle">Players Lounge · ${LOUNGE_SEATS} Pl.</text>`;}
@@ -2288,7 +2308,7 @@ function renderPlan(){
   if(on("L_vip"))sg+=`<rect x="${OUT.x0}" y="${OUT.z0}" width="${OUT.x1-OUT.x0}" height="${OUT.z1-OUT.z0}" fill="#3a2a4a" fill-opacity="${lv==="galerie"?.92:0}" stroke="#cdbfda" stroke-width=".12" stroke-dasharray=".5 .25"/><text x="${OUT.x0+3.45}" y="${OUT.z0-.4}" font-size=".55" fill="#cdbfda" text-anchor="middle">Motorworld-Galerie (außen)</text>`+
     `<rect x="59" y="-8.5" width=".8" height="6" fill="#c9a35a" fill-opacity=".75"/><text x="61.1" y="-5.5" font-size=".5" fill="#e9cf9a" transform="rotate(-90 61.1 -5.5)" text-anchor="middle">Buffet</text>`+
     `<rect x="58.95" y="-.5" width=".7" height="3" fill="#6d4a99" stroke="#c9a35a" stroke-width=".06"/><text x="61.1" y="1" font-size=".5" fill="#e9cf9a" transform="rotate(-90 61.1 1)" text-anchor="middle">VIP-Bar</text>`+
-    [[57.6,-7],[57.6,-4],[57.6,-1],[57.6,2.6]].map(([x,z])=>`<circle cx="${x}" cy="${z}" r=".4" fill="none" stroke="#efeaf4" stroke-width=".06"/>`).join("")+
+    [[57.6,-7],[57.6,-4],[57.6,-1],[56.95,1.8]].map(([x,z])=>`<circle cx="${x}" cy="${z}" r=".4" fill="none" stroke="#efeaf4" stroke-width=".06"/>`).join("")+
     `<rect x="${OUT.x0+.61}" y="5.72" width="1.82" height="2.69" fill="#2a2230" stroke="#8fd0ff" stroke-width=".08"/><text x="${OUT.x0+1.52}" y="7.2" font-size=".45" fill="#a99cb8" text-anchor="middle">Lift</text>`;
   if(on("L_band"))[C.cx-C.L/2-.75,C.cx+C.L/2+.75].forEach(x=>s+=`<rect x="${x-.18}" y="-5" width=".36" height="10" fill="#123a44" stroke="#FF6352" stroke-width=".08"/>`);
   if(on("L_cupra")){s+=`<rect x="${CAR.x-2.22}" y="${CAR.z-.92}" width="4.45" height="1.84" rx=".5" fill="#5c5f64" stroke="#b8763e" stroke-width=".08" transform="rotate(${-CAR.rot*180/Math.PI} ${CAR.x} ${CAR.z})"/><text x="${CAR.x}" y="${CAR.z+.25}" font-size=".55" fill="#efeaf4" text-anchor="middle" font-weight="700">CUPRA</text>`;
