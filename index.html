@@ -272,7 +272,7 @@ svg text{font-family:var(--mono)}
         <dt>Runway</dt><dd>3,5 × 10,7 m</dd>
         <dt>Laufweg zum Netz</dt><dd>1,6 m breit</dd>
         <dt>CUPRA-Showcar</dt><dd>ca. 4,45 × 1,84 m · ebenerdig, ohne Podest</dd>
-        <dt>LED-Banden</dt><dd>2 × 10 × 0,9 m · 0,75 m hinter Grundlinie</dd>
+        <dt>LED-Banden</dt><dd>2 × 10 × 0,9 m · 0,75 m hinter Grundlinie, Bühnenseite beidseitig</dd>
         <dt>CUPRA DJ-Pult</dt><dd>an der Wand · Podest 2,6 × 2,2 m</dd>
       </dl>
       <p class="note">Die Teams kommen aus dem Backstage direkt hinter der Bühne und treten zwischen LED-Wand und Pylonen auf die Bühne. Dann geht es über den Runway und seitlich am Court entlang zum Eingang am Netz. Auf Bühne und Runway steht kein Publikum. Die Totale (Cam 1) steht erhöht auf einem Podest hinter dem LED-Gate, ca. 7 m hoch. Sie blickt über Gate und Runway auf den Court und hat dahinter die Tribüne und die Galerien mit dem Publikum im Bild.</p>
@@ -1875,6 +1875,7 @@ const bandMats=[];
   const back=new THREE.Mesh(new THREE.BoxGeometry(10,.9,.35),mat("#18181c",{roughness:.6}));back.position.set(0,.45,-.1);back.rotation.x=-.18;back.castShadow=true;g.add(back);
   const m=new THREE.MeshBasicMaterial({map:bandTex()});bandMats.push(m);
   const face=plane(9.9,.78,m);face.position.set(0,.47,.09);face.rotation.x=-.18;g.add(face);
+  if(dir>0){const m2=new THREE.MeshBasicMaterial({map:bandTex()});bandMats.push(m2);const f2=plane(9.9,.78,m2);f2.position.set(0,.47,-.29);f2.rotation.set(-.18,Math.PI,0);g.add(f2);} // Bühnenseite beidseitig (Sicht Cam 1)
   box(g,10,.05,.6,M.dark,0,.025,-.05,false);bandG.add(g);});
 
 // ---------- Rollstuhlplätze (VStättV: mind. 1 % der Besucherplätze, mind. 2) ----------
@@ -2110,7 +2111,7 @@ label("VIP Fingerfood-Buffet (außen)",[59.4,4.8+1.9,-5.5],vipG,"sug");
 label("VIP-Bar (außen)",[59.3,4.8+2.4,1],vipG,"sug");
 label("Garderobe",[RX+12.2,3.2,8.8],expoG,"sug");
 label("Digitale Bande · Sponsoren-Loop",[C.cx+C.L/2+.75,1.3,3.2],bandG,"sug");
-label("Digitale Bande",[C.cx-C.L/2-.75,1.3,-3.2],bandG,"sug");
+label("Digitale Bande · beidseitig (Sicht Cam 1)",[C.cx-C.L/2-.75,1.3,-3.2],bandG,"sug");
 label("CUPRA Showcar",[CAR.x,2.4,CAR.z],cupraG,"sug");
 label("CUPRA DJ-Pult",[DJ.x,2.6,DJ.z+.6],cupraG,"sug");
 label("Runway",[5.5,.4,0],gateG,"sug");
