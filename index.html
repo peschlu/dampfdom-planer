@@ -182,7 +182,8 @@ svg text{font-family:var(--mono)}
         <button data-v="stairs">Treppenhaus</button>
         <button data-v="vipin">VIP-Zugang</button>
         <button data-v="screen">Sichtschutz Deck</button>
-        <button data-v="viplift">VIP-Aufzug</button>
+        <button data-v="viplift">VIP-Aufzug unten</button>
+        <button data-v="viplifttop">VIP-Aufzug oben</button>
         <button data-v="vipcat">VIP-Catering</button>
         <button data-v="lounge">Players Lounge</button>
         <button data-v="garde">Garderobe</button>
@@ -312,9 +313,9 @@ svg text{font-family:var(--mono)}
       <dl>
         <dt>Rotunde (Foyer)</dt><dd>ca. 44,6 × 21 m · 750 m²</dd>
         <dt>Max. Personen</dt><dd>800 (Factsheet)</dd>
-        <dt>Partnerstände</dt><dd>5 + Merch · je 3 × 2,5 m</dd>
+        <dt>Partnerstände</dt><dd>4 + Merch · je 3 × 2,5 m</dd>
         <dt>Food-Stände</dt><dd>3 · je 3 × 2,5 m</dd>
-        <dt>Bar</dt><dd>4,5 m Theke, Rücken zum Glasraum (hinten rechts)</dd>
+        <dt>Bar</dt><dd>6 m Theke, Rücken zum Glasraum (hinten rechts)</dd>
         <dt>Stehtische</dt><dd>12, nur am Rand</dd>
         <dt>Garderobe</dt><dd>7 m Theke an der Brüstung, links der Rolltreppe</dd>
         <dt>Live-Screen</dt><dd>6 × 3,4 m</dd>
@@ -1853,6 +1854,9 @@ const vipWallMatBack=new THREE.MeshBasicMaterial({map:opctWallTex()});
   [-2.9,0,2.9].forEach(z=>{const d=plane(2.4,2.3,basic("#ffe7b8"));d.rotation.y=-Math.PI/2;d.position.set(H.endX-.03,y+1.15,z);vipG.add(d);});
   // Security 1: VIP-Check-in an der Aufzug-/Treppenankunft auf der Motorworld-Galerie
   const vest=()=>{const v=new THREE.Mesh(new THREE.BoxGeometry(.42,.25,.32),mat("#c9a35a"));v.position.y=1.05;return v;};
+  // Aufzugsvorplatz freihalten (oben und unten), Schraffur
+  const hatchM=new THREE.MeshBasicMaterial({map:canvasTex(128,128,(g,w,h)=>{g.clearRect(0,0,w,h);g.strokeStyle="rgba(255,99,82,.9)";g.lineWidth=10;for(let i=-w;i<w*2;i+=32){g.beginPath();g.moveTo(i,h);g.lineTo(i+h,0);g.stroke();}},3,2),transparent:true,depthWrite:false});
+  [.012,OUT.y+.012].forEach(yy=>{const hp=plane(1.82,1.5,hatchM);hp.rotation.x=-Math.PI/2;hp.position.set(H.endX+1.52,yy,5.72-.75);vipG.add(hp);});
   // Security unten am Aufzug (Rotunde, neben dem Dampfdom-Einlass): nur VIPs fahren hoch
   const vipSign=()=>plane(.8,.5,new THREE.MeshBasicMaterial({map:canvasTex(160,100,(g,w,h)=>{g.fillStyle="#c9a35a";g.fillRect(0,0,w,h);g.fillStyle="#1a0b14";g.font="800 54px Archivo, Arial";g.textAlign="center";g.fillText("VIP",w/2,70);})}));
   person(vipG,56.6,5.35,secMat,0).add(vest());
@@ -1949,10 +1953,10 @@ const ROOMS=[{n:"Glasraum „Am Ausbesserungswerk“",x0:.16,x1:6.7,z0:-10.4,z1:
 const LIFTS=[[.61,2.43,5.72,8.41],[42.27,44.08,5.72,8.41]];
 const RCOLS=[[5.12,4.97],[39.5,4.97]];
 const ESC=[[[18.7,-5.9],[20.7,5.3]],[[26.0,-5.9],[24.0,5.3]]];
-const BOOTHS=[["OPCT Merch","Stand M · 3 × 2,5 m",8.0,11.0],["Partner 1","Stand P1 · 3 × 2,5 m",11.2,14.2],["Partner 2","Stand P2 · 3 × 2,5 m",14.4,17.4],["Partner 3","Stand P3 · 3 × 2,5 m",28.3,31.3],["Partner 4","Stand P4 · 3 × 2,5 m",31.5,34.5],["Partner 5","Stand P5 · 3 × 2,5 m",34.7,37.7]];
+const BOOTHS=[["OPCT Merch","Stand M · 3 × 2,5 m",8.0,11.0],["Partner 1","Stand P1 · 3 × 2,5 m",11.2,14.2],["Partner 2","Stand P2 · 3 × 2,5 m",14.4,17.4],["Partner 3","Stand P3 · 3 × 2,5 m",28.3,31.3],["Partner 4","Stand P4 · 3 × 2,5 m",31.5,34.5]];
 const FOODS=[["Food 1",28.0,31.0],["Food 2",31.3,34.3],["Food 3",34.6,37.6]];
 const TABLES=[];for(let x=9.5;x<=15.6;x+=2)[2.8].forEach(z=>TABLES.push([x,z]));[[29,-4.8],[30.6,-4.8],[32.2,-4.8],[29,4.3],[30.8,4.3],[32.6,4.3],[34.4,4.3],[36.2,4.3]].forEach(t=>TABLES.push(t)); // rechts nur am Rand, Mitte frei
-const BAR={x:36.4,z0:-7.4,z1:-2.9}; // Bar mit dem Rücken zum Glasraum „U6 Freimann“ (hinten rechts), Front zur Rolltreppe
+const BAR={x:36.4,z0:-8.6,z1:-2.6}; // Bar mit dem Rücken zum Glasraum „U6 Freimann“ (hinten rechts), Front zur Rolltreppe
 const WALK=[[.2,17,-4.2,1.8],[6.9,27.8,-7.5,-4.2]];
 (function(){
   // Boden mit Rolltreppen-Öffnung
@@ -1985,7 +1989,15 @@ const WALK=[[.2,17,-4.2,1.8],[6.9,27.8,-7.5,-4.2]];
   [[0,6.9],[37.8,44.6]].forEach(([a,b])=>{box(rotG,b-a,.45,R.z1-R.z0,M.concrete,RX+(a+b)/2,4.57,(R.z0+R.z1)/2);const ed=a===0?b:a;segBox(rotG,[RX+ed,R.z0],[RX+ed,R.z1],5.35,1.0,.04,M.rail);});
   // Glasräume, Aufzüge, Stützen
   ROOMS.forEach(r=>{const w=r.x1-r.x0,d=r.z1-r.z0;box(rotG,w,3.6,d,M.glass,RX+(r.x0+r.x1)/2,1.8,(r.z0+r.z1)/2,false);box(rotG,w+.05,.7,d+.05,M.frame,RX+(r.x0+r.x1)/2,3.97,(r.z0+r.z1)/2,false);});
-  LIFTS.forEach(([a,b,c,d])=>{box(rotG,b-a,4.3,d-c,M.glass,RX+(a+b)/2,2.15,(c+d)/2,false);box(rotG,b-a+.05,.25,d-c+.05,M.frame,RX+(a+b)/2,4.2,(c+d)/2,false);});
+  LIFTS.forEach(([a,b,c,d],li)=>{box(rotG,b-a,4.3,d-c,M.glass,RX+(a+b)/2,2.15,(c+d)/2,false);box(rotG,b-a+.05,.25,d-c+.05,M.frame,RX+(a+b)/2,4.2,(c+d)/2,false);
+    if(li===0){// VIP-Aufzug (Glas) neben dem Dampfdom-Eingang: Schacht geht durch die Motorworld-Galerie (+4,80 m) hoch
+      const x0=RX+a,x1=RX+b,xm=(x0+x1)/2,zm=(c+d)/2,w=b-a,dd=d-c,top=8.2;
+      box(rotG,w,top-4.8,dd,M.glass,xm,4.8+(top-4.8)/2,zm,false);box(rotG,w+.08,.12,dd+.08,M.frame,xm,top,zm,false);
+      [[x0,c],[x1,c],[x0,d],[x1,d]].forEach(([x,z])=>box(rotG,.1,top,.1,M.frame,x,top/2,z,false));
+      box(rotG,w-.25,2.3,dd-.25,mat("#2a2230",{roughness:.6}),xm,4.8+1.15,zm+.05);  // Kabine oben
+      const vd=new THREE.MeshBasicMaterial({map:canvasTex(220,300,(g,W,Hh)=>{g.fillStyle="#c9a35a";g.fillRect(0,0,W,Hh);g.fillStyle="#1a0b14";g.fillRect(W/2-2,0,4,Hh);g.font="800 64px Archivo, Arial";g.textAlign="center";g.fillText("VIP",W/2,Hh/2+22);})});
+      [0,4.8].forEach(yy=>{const dp=plane(1.1,2.1,vd);dp.position.set(xm,yy+1.05,c-.04);dp.rotation.y=Math.PI;rotG.add(dp);});}
+  });
   RCOLS.forEach(([x,z])=>{const c=new THREE.Mesh(new THREE.CylinderGeometry(.3,.3,4.35,20),M.concrete);c.position.set(RX+x,2.17,z);add(rotG,c,true);});
 })();
 // Expo-Vorschlag: Stände, Bar, Stehtische, Screen, Fotowand, Einlass, Laufwege
@@ -2007,7 +2019,7 @@ const expoTex=[];
     const aw=new THREE.Mesh(new THREE.BoxGeometry(w+.3,.08,1.1),mat("#FF6352"));aw.position.set(xm,2.75,zf-.35);aw.rotation.x=-.25;expoG.add(aw);
     person(expoG,xm-.5,zf-1.6,peopleMat[2]);person(expoG,xm+.3,zf-2.4,peopleMat[0]);});
   {const bl=BAR.z1-BAR.z0,bz=(BAR.z0+BAR.z1)/2;box(expoG,.7,1.1,bl,M.sug,RX+BAR.x+.35,.55,bz);box(expoG,.72,.05,bl+.02,M.sugEdge,RX+BAR.x+.35,1.12,bz,false);box(expoG,.45,2.2,bl,M.dark,RX+37.75,1.1,bz);}
-  person(expoG,RX+37.3,-6.2,peopleMat[2]);person(expoG,RX+37.3,-4.1,peopleMat[2]);person(expoG,RX+35.6,-5.6,peopleMat[0]);person(expoG,RX+35.4,-4.2,peopleMat[1]);
+  person(expoG,RX+37.3,-7.0,peopleMat[2]);person(expoG,RX+37.3,-4.1,peopleMat[2]);person(expoG,RX+35.6,-5.6,peopleMat[0]);person(expoG,RX+35.4,-4.2,peopleMat[1]);
   const pole=new THREE.CylinderGeometry(.04,.04,1.1,8),top=new THREE.CylinderGeometry(.4,.4,.04,24),cloth=mat("#efeaf4");
   TABLES.forEach(([x,z],i)=>{const a=new THREE.Mesh(pole,M.steel);a.position.set(RX+x,.55,z);const b=new THREE.Mesh(top,cloth);b.position.set(RX+x,1.1,z);b.castShadow=true;expoG.add(a,b);if(i%3===0)person(expoG,RX+x+.5,z+.2,peopleMat[i%2?1:3]);});
   // Garderobe an der Brüstung links der Rolltreppe (statt Food 1–2), Theke Richtung Laufweg
@@ -2114,6 +2126,8 @@ label("Sichtschutz / Fotowand 2,4 m",[51,H.galT+2.9,-6.0],vipG,"sug");
 label("Weg Treppe ↔ Galerie ca. 1,70 m",[50,H.galT+.5,-6.6],vipG,"dim");
 label("VIP-Esstische außen am Buffet",[58.4,4.8+1.8,-9.6],vipG,"sug");
 label("Security · VIP-Aufzug (unten, Rotunde)",[56.6,2.5,5.35],vipG,"dim");
+label("VIP-Aufzug (Glas) · Schacht, nicht begehbar",[55.1,8.8,7.1],rotG,"sug");
+label("Aufzugsvorplatz freihalten",[55.1,4.8+.5,4.6],vipG,"dim");
 label("Türen Motorworld-Galerie ↔ Dampfdom",[53.4,H.galT+2.7,0],vipG,"sug");
 label("Players Lounge · 2 Reihen",[8.15,2.6,8.4],loungeG,"sug");
 label("Gang 1,20 m",[12.0,.5,8],loungeG,"dim");
@@ -2215,6 +2229,7 @@ const VIEWS={
   vipin:{p:[52.5,H.galT+3.2,3.5],t:[42,H.galT,-5.5]},
   screen:{p:[52.9,H.galT+1.7,-6.9],t:[42,H.galT+1.1,-5.6]},
   viplift:{p:[61.5,2.2,-.5],t:[55.8,1.2,5.6]},
+  viplifttop:{p:[60.2,7.4,0.5],t:[55.1,5.6,6.8]},
   lounge:{p:[C.cx+11,2.9,5.9],t:[C.cx-6,1,8.6]},
   garde:{p:[H.endX+18.5,2.6,.2],t:[H.endX+11.5,1.1,8.6]},
 };
@@ -2309,7 +2324,7 @@ function renderPlan(){
     `<rect x="59" y="-8.5" width=".8" height="6" fill="#c9a35a" fill-opacity=".75"/><text x="61.1" y="-5.5" font-size=".5" fill="#e9cf9a" transform="rotate(-90 61.1 -5.5)" text-anchor="middle">Buffet</text>`+
     `<rect x="58.95" y="-.5" width=".7" height="3" fill="#6d4a99" stroke="#c9a35a" stroke-width=".06"/><text x="61.1" y="1" font-size=".5" fill="#e9cf9a" transform="rotate(-90 61.1 1)" text-anchor="middle">VIP-Bar</text>`+
     [[57.6,-7],[57.6,-4],[57.6,-1],[56.95,1.8]].map(([x,z])=>`<circle cx="${x}" cy="${z}" r=".4" fill="none" stroke="#efeaf4" stroke-width=".06"/>`).join("")+
-    `<rect x="${OUT.x0+.61}" y="5.72" width="1.82" height="2.69" fill="#2a2230" stroke="#8fd0ff" stroke-width=".08"/><text x="${OUT.x0+1.52}" y="7.2" font-size=".45" fill="#a99cb8" text-anchor="middle">Lift</text>`;
+    `<rect x="${OUT.x0+.61}" y="5.72" width="1.82" height="2.69" fill="#1a1420" stroke="#c9a35a" stroke-width=".12"/><line x1="${OUT.x0+.61}" y1="5.72" x2="${OUT.x0+2.43}" y2="8.41" stroke="#c9a35a" stroke-width=".06"/><line x1="${OUT.x0+2.43}" y1="5.72" x2="${OUT.x0+.61}" y2="8.41" stroke="#c9a35a" stroke-width=".06"/><rect x="${OUT.x0+.61}" y="4.22" width="1.82" height="1.5" fill="url(#firefree)" stroke="#FF6352" stroke-width=".05" stroke-dasharray=".2 .12"/><text x="${OUT.x0+1.52}" y="9.1" font-size=".5" fill="#e9cf9a" text-anchor="middle" font-weight="700">VIP-Aufzug</text><text x="${OUT.x0+3.4}" y="5.1" font-size=".38" fill="#ffd6d1">Vorplatz frei</text>`;
   if(on("L_band"))[C.cx-C.L/2-.75,C.cx+C.L/2+.75].forEach(x=>s+=`<rect x="${x-.18}" y="-5" width=".36" height="10" fill="#123a44" stroke="#FF6352" stroke-width=".08"/>`);
   if(on("L_cupra")){s+=`<rect x="${CAR.x-2.22}" y="${CAR.z-.92}" width="4.45" height="1.84" rx=".5" fill="#5c5f64" stroke="#b8763e" stroke-width=".08" transform="rotate(${-CAR.rot*180/Math.PI} ${CAR.x} ${CAR.z})"/><text x="${CAR.x}" y="${CAR.z+.25}" font-size=".55" fill="#efeaf4" text-anchor="middle" font-weight="700">CUPRA</text>`;
     s+=`<rect x="${DJ.x-1.3}" y="${DJ.z-1.1}" width="2.6" height="2.2" fill="#141416" stroke="#b8763e" stroke-width=".06"/><rect x="${DJ.x-1.2}" y="${DJ.z+.15}" width="2.4" height=".8" fill="#b8763e"/><text x="${DJ.x}" y="${DJ.z+1.75}" font-size=".5" fill="#e0a46a" text-anchor="middle">DJ</text>`;}
@@ -2320,7 +2335,7 @@ function renderPlan(){
    s+=`<line x1="${R.x0}" y1="${R.z1}" x2="${R.x1}" y2="${R.z1}" stroke="#8fd0ff" stroke-width=".14" stroke-dasharray=".5 .25"/><text x="${X(22.3)}" y="${R.z1+1.1}" font-size=".65" fill="#8fd0ff" text-anchor="middle">Brüstung · Blick ins EG (Ausstellung)</text>`;
    s+=`<line x1="${R.x0}" y1="${R.z0}" x2="${R.x1}" y2="${R.z0}" stroke="#8fd0ff" stroke-width=".3"/><text x="${X(22.3)}" y="${R.z0-.5}" font-size=".65" fill="#8fd0ff" text-anchor="middle">Fensterfront</text>`;
    ROOMS.forEach(r=>s+=`<rect x="${X(r.x0)}" y="${r.z0}" width="${r.x1-r.x0}" height="${r.z1-r.z0}" fill="url(#hatch)" stroke="#8fd0ff" stroke-width=".08"/><text x="${X((r.x0+r.x1)/2)}" y="${(r.z0+r.z1)/2}" font-size=".5" fill="#cdbfda" text-anchor="middle">${r.n.replace("Glasraum ","")}</text>`);
-   LIFTS.forEach(([a,b,c,d])=>s+=`<rect x="${X(a)}" y="${c}" width="${b-a}" height="${d-c}" fill="#2a2230" stroke="#8fd0ff" stroke-width=".08"/><text x="${X((a+b)/2)}" y="${(c+d)/2+.2}" font-size=".5" fill="#a99cb8" text-anchor="middle">Lift</text>`);
+   LIFTS.forEach(([a,b,c,d],li)=>s+=li===0?`<rect x="${X(a)}" y="${c}" width="${b-a}" height="${d-c}" fill="#1a1420" stroke="#c9a35a" stroke-width=".12"/><line x1="${X(a)}" y1="${c}" x2="${X(b)}" y2="${d}" stroke="#c9a35a" stroke-width=".06"/><line x1="${X(b)}" y1="${c}" x2="${X(a)}" y2="${d}" stroke="#c9a35a" stroke-width=".06"/><rect x="${X(a)}" y="${c-1.5}" width="${b-a}" height="1.5" fill="url(#firefree)" stroke="#FF6352" stroke-width=".05" stroke-dasharray=".2 .12"/><text x="${X((a+b)/2)}" y="${d+.7}" font-size=".5" fill="#e9cf9a" text-anchor="middle" font-weight="700">VIP-Aufzug</text>`:`<rect x="${X(a)}" y="${c}" width="${b-a}" height="${d-c}" fill="#2a2230" stroke="#8fd0ff" stroke-width=".08"/><text x="${X((a+b)/2)}" y="${(c+d)/2+.2}" font-size=".5" fill="#a99cb8" text-anchor="middle">Lift</text>`);
    RCOLS.forEach(([x,z])=>s+=`<circle cx="${X(x)}" cy="${z}" r=".3" fill="#cdbfda"/>`);
    s+=`<polygon points="${P(OVAL)}" fill="#0d0712" stroke="#cdbfda" stroke-width=".1"/>`;
    [[[18.02,-5.79],[19.4,-6.03],[21.47,5.7],[19.89,4.78]],[[26.67,-5.79],[25.29,-6.03],[23.22,5.7],[24.81,4.78]]].forEach(q=>s+=`<polygon points="${P(q.map(([x,z])=>[X(x),z]))}" fill="#4a4550" stroke="#8a8292" stroke-width=".05"/>`);
@@ -2332,7 +2347,7 @@ function renderPlan(){
      BOOTHS.forEach(([n,,x0,x1])=>s+=`<rect x="${X(x0)}" y="-10.2" width="${x1-x0}" height="2.5" fill="#6d4a99" stroke="#b994e6" stroke-width=".08"/><text x="${X((x0+x1)/2)}" y="-8.75" font-size=".5" fill="#efeaf4" text-anchor="middle">${n.replace("OPCT ","")}</text>`);
      FOODS.forEach(([n,x0,x1])=>s+=`<rect x="${X(x0)}" y="7.9" width="${x1-x0}" height="2.5" fill="#FF6352" fill-opacity=".85" stroke="#ffd6d1" stroke-width=".08"/><text x="${X((x0+x1)/2)}" y="9.35" font-size=".55" fill="#1a0b14" text-anchor="middle" font-weight="700">${n}</text><rect x="${X(x0)}" y="5.2" width="${x1-x0}" height="2.6" fill="none" stroke="#ffd6d1" stroke-width=".04" stroke-dasharray=".3 .2"/>`);
      s+=`<text x="${X(32.8)}" y="6.7" font-size=".45" fill="#ffd6d1" text-anchor="middle">Warteschlangen</text>`;
-     s+=`<rect x="${X(BAR.x)}" y="${BAR.z0}" width=".7" height="${BAR.z1-BAR.z0}" fill="#6d4a99" stroke="#b994e6" stroke-width=".08"/><rect x="${X(37.55)}" y="${BAR.z0}" width=".45" height="${BAR.z1-BAR.z0}" fill="#2a2230"/><text x="${X(BAR.x-.4)}" y="${(BAR.z0+BAR.z1)/2}" font-size=".55" fill="#efeaf4" text-anchor="middle" transform="rotate(-90 ${X(BAR.x-.4)} ${(BAR.z0+BAR.z1)/2})">Bar 4,5 m</text><rect x="${X(33.9)}" y="${BAR.z0}" width="2.5" height="${BAR.z1-BAR.z0}" fill="none" stroke="#efeaf4" stroke-width=".04" stroke-dasharray=".3 .2"/><text x="${X(31)}" y=".2" font-size=".55" fill="#a99cb8" text-anchor="middle">freie Fläche</text>`;
+     s+=`<rect x="${X(BAR.x)}" y="${BAR.z0}" width=".7" height="${BAR.z1-BAR.z0}" fill="#6d4a99" stroke="#b994e6" stroke-width=".08"/><rect x="${X(37.55)}" y="${BAR.z0}" width=".45" height="${BAR.z1-BAR.z0}" fill="#2a2230"/><text x="${X(BAR.x-.4)}" y="${(BAR.z0+BAR.z1)/2}" font-size=".55" fill="#efeaf4" text-anchor="middle" transform="rotate(-90 ${X(BAR.x-.4)} ${(BAR.z0+BAR.z1)/2})">Bar 6 m</text><rect x="${X(33.9)}" y="${BAR.z0}" width="2.5" height="${BAR.z1-BAR.z0}" fill="none" stroke="#efeaf4" stroke-width=".04" stroke-dasharray=".3 .2"/><text x="${X(31)}" y=".2" font-size=".55" fill="#a99cb8" text-anchor="middle">freie Fläche</text>`;
      TABLES.forEach(([x,z])=>s+=`<circle cx="${X(x)}" cy="${z}" r=".4" fill="none" stroke="#efeaf4" stroke-width=".06"/>`);
      s+=`<line x1="${X(19.4)}" y1="${R.z0+.15}" x2="${X(25.4)}" y2="${R.z0+.15}" stroke="#FF6352" stroke-width=".35"/><text x="${X(22.4)}" y="${R.z0+1.0}" font-size=".5" fill="#ffd6d1" text-anchor="middle">Live-Screen</text>`;
      s+=`<line x1="${X(1)}" y1="-4.3" x2="${X(6)}" y2="-4.3" stroke="#b994e6" stroke-width=".25"/><text x="${X(3.5)}" y="-3.6" font-size=".5" fill="#d9c5f2" text-anchor="middle">Fotowand</text>`;
